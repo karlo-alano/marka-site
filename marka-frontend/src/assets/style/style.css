@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-custom-purple: #744577;
+  --color-custom-tan: #f0e9b6;
+  --color-custom-lime: #accfa3;
+  --color-custom-mint: #84c5b1;
+}

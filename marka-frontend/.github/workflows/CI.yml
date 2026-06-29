@@ -1,0 +1,77 @@
+name: Continuous-Integration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trivy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build -t marka-backend:latest .
+
+      - name: Run trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'marka-backend:latest'
+          severity: HIGH,CRITICAL,MEDIUM
+          ignore-unfixed: true
+          exit-code: 1
+
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Run linter program
+        run: npm run lint
+
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Run formatting program
+        run: npm run format:check
+
+  vitest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Run formatting program
+        run: npm run test
