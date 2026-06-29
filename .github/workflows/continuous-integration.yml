@@ -1,0 +1,8 @@
+name: continuous-integration-main.yml
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
