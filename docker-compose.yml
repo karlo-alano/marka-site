@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build:
@@ -18,8 +16,12 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "3000:3000"
+      - "5173:80"
     depends_on:
       - backend
     volumes:
       - ./Frontend:/app
+
+networks:
+  app-network:
+    driver: bridge

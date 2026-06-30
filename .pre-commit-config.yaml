@@ -1,0 +1,100 @@
+exclude: '^(?:\.venv|venv|Backend/\.venv|Frontend/node_modules|Frontend/dist)/'
+
+repos:
+  # 1. Basic File Hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        exclude: '^Frontend/tsconfig.*\.json$'
+      - id: check-added-large-files
+
+  # 2. Python (FastAPI) - Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.1
+    hooks:
+      - id: ruff
+        name: Ruff Check
+        # args: [--config, Backend/pyproject.toml, --fix]
+        files: ^Backend/.*\.py$
+
+      - id: ruff-format
+        name: Ruff Format Check
+        args: [--check, --config, Backend/pyproject.toml]
+        files: ^Backend/.*\.py$
+
+  # 3. Frontend Formatting (Prettier)
+  - repo: local
+    hooks:
+      - id: frontend-format
+        name: Frontend Format
+        language: system
+        entry: npm --prefix Frontend run format
+        files: ^Frontend/.*\.(vue|ts|tsx|js|jsx|json|css|scss|html|md|yml|yaml)$
+        pass_filenames: false
+
+  # 4. Frontend Linting (Oxlint + ESLint)
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: Frontend Lint
+        language: system
+        entry: npm --prefix Frontend run lint
+        files: ^Frontend/.*\.(vue|ts|tsx|js|jsx)$
+        pass_filenames: false
+
+  # 5. Secret Scanning
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
+    hooks:
+      - id: gitleaks
+
+  # 6. Backend Tests (runs before push)
+  - repo: local
+    hooks:
+      - id: backend-tests
+        name: Backend Tests
+        language: system
+        entry: bash -c "cd Backend && pytest -v --cov=app --cov-report=term --cov-fail-under=80"
+        pass_filenames: false
+        files: ^Backend/
+        stages: [pre-push]
+
+  # 7. Frontend Build + Type Check (runs before push)
+  - repo: local
+    hooks:
+      - id: frontend-build
+        name: Frontend Build
+        language: system
+        entry: npm --prefix Frontend run build
+        pass_filenames: false
+        files: ^Frontend/
+        stages: [pre-push]
+
+  # 8. Trivy Security Scan (runs before push)
+  - repo: local
+    hooks:
+      - id: trivy
+        name: Trivy Security Scan
+        language: system
+        entry: trivy
+        args:
+          - fs
+          - .
+          - --severity
+          - HIGH,CRITICAL
+          - --exit-code
+          - "1"
+          - --timeout
+          - 30m
+          - --scanners
+          - vuln,misconfig
+          - --skip-dirs
+          - Frontend/node_modules
+          - --skip-dirs
+          - Frontend/dist
+        pass_filenames: false
+        stages: [pre-push]
