@@ -1,9 +1,7 @@
 name: Continuous-Integration
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
 
 jobs:
   gitleaks:
@@ -34,8 +32,8 @@ jobs:
       - name: Run trivy
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'image'
-          image-ref: 'marka-backend:latest'
+          scan-type: "image"
+          image-ref: "marka-backend:latest"
           severity: HIGH,CRITICAL,MEDIUM
           ignore-unfixed: true
           exit-code: 1
