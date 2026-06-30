@@ -77,24 +77,9 @@ repos:
   # 8. Trivy Security Scan (runs before push)
   - repo: local
     hooks:
-      - id: trivy
+      - id: trivy-fs
         name: Trivy Security Scan
         language: system
-        entry: trivy
-        args:
-          - fs
-          - .
-          - --severity
-          - HIGH,CRITICAL
-          - --exit-code
-          - "1"
-          - --timeout
-          - 30m
-          - --scanners
-          - vuln,misconfig
-          - --skip-dirs
-          - Frontend/node_modules
-          - --skip-dirs
-          - Frontend/dist
+        entry: trivy fs . --severity HIGH,CRITICAL --exit-code 1 --timeout 30m --scanners vuln,misconfig --skip-dirs Frontend/node_modules --skip-dirs Frontend/dist
         pass_filenames: false
         stages: [pre-push]
