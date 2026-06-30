@@ -135,7 +135,7 @@ jobs:
         run: npm run format:check
 
   frontend-vitest:
-    needs: [frontend-eslint, frontend-prettier]
+    needs: [shared-trivy, frontend-eslint, frontend-prettier]
     runs-on: ubuntu-latest
 
     steps:
