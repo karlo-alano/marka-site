@@ -21,7 +21,7 @@ interface BreakdownItem {
   contribution: number
 }
 
-const API_URL = 'http://localhost:8000/calculate'
+const API_URL = 'https://marka-api.karloalano.site/calculate'
 
 const categories = reactive<GradeCategory[]>([
   {
