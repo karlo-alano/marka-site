@@ -87,7 +87,7 @@ jobs:
 
   backend-pytest:
     runs-on: ubuntu-latest
-    needs: [trivy, backend-lint-format]
+    needs: [shared-trivy, backend-lint-format]
 
     steps:
       - name: Checkout
