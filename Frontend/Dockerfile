@@ -11,10 +11,6 @@ COPY . .
 RUN npm run build
 
 
-FROM nginx:alpine
-
-RUN rm -rf /usr/share/nginx/html/*
-
+FROM nginxinc/nginx-unprivileged:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-
-EXPOSE 80
+EXPOSE 8080
