@@ -9,6 +9,8 @@ services:
     volumes:
       - ./Backend:/app
     restart: unless-stopped
+    networks:
+      - tunnel-network
 
   frontend:
     build:
@@ -16,11 +18,13 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "5173:81"
+      - "5173:8080"
     depends_on:
       - backend
     volumes:
       - ./Frontend:/app
+    networks:
+      - tunnel-network
 
 networks:
   tunnel-network:
