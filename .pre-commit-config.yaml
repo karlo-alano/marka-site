@@ -58,7 +58,7 @@ repos:
       - id: backend-tests
         name: Backend Tests
         language: system
-        entry: bash -c "cd Backend && pytest -v --cov=app --cov-report=term --cov-fail-under=80"
+        entry: bash -c "cd Backend && .venv/Scripts/python.exe -m pytest -v --cov=app --cov-report=term --cov-fail-under=80"
         pass_filenames: false
         files: ^Backend/
         stages: [pre-push]
