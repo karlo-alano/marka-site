@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import 'primeicons/primeicons.css'
 
 interface Assessment {
@@ -43,7 +43,7 @@ const loading = ref(false)
 
 function addCategory() {
   categories.push({
-    category: 'New Category',
+    category: 'New category',
     weight: 0,
     assessments: [{ name: 'Assessment 1', earned_points: 0, total_points: 0 }],
   })
@@ -66,12 +66,28 @@ function addAssessment(catIndex: number) {
 
 function removeAssessment(catIndex: number, assIndex: number) {
   const category = categories[catIndex]
-
   if (!category) return
   category.assessments.splice(assIndex, 1)
 }
 
-const totalWeight = () => categories.reduce((sum, c) => sum + (Number(c.weight) || 0), 0)
+const totalWeight = computed(() => categories.reduce((sum, c) => sum + (Number(c.weight) || 0), 0))
+
+const weightIsBalanced = computed(() => Math.abs(totalWeight.value - 1) < 0.005)
+
+// letter mark for the stamp, purely cosmetic flavor on top of the numeric grade
+function letterFor(grade: number) {
+  if (grade >= 96.7) return '1.00'
+  if (grade >= 93.4) return '1.25'
+  if (grade >= 90.1) return '1.50'
+  if (grade >= 86.7) return '1.75'
+  if (grade >= 83.4) return '2.00'
+  if (grade >= 80.1) return '2.25'
+  if (grade >= 76.7) return '2.50'
+  if (grade >= 73.4) return '2.75'
+  if (grade >= 70.0) return '3.00'
+  if (grade >= 50) return '4.00/INC'
+  return 'F'
+}
 
 async function calculate() {
   errorMsg.value = ''
@@ -105,144 +121,191 @@ async function calculate() {
 </script>
 
 <template>
-  <main class="h-screen w-screen bg-custom-purple p-10 overflow-y-auto">
-    <div class="text-4xl font-extrabold text-custom-tan">Marka</div>
-    <div class="text-custom-tan/70 mb-8">Your grades, weighted and tallied</div>
+  <main class="min-h-screen w-screen bg-custom-purple px-6 py-12 md:px-14 lg:px-20 overflow-y-auto">
+    <!-- masthead -->
+    <header class="max-w-6xl mx-auto mb-12 flex items-end justify-between gap-6 flex-wrap">
+      <div>
+        <div class="flex items-baseline gap-3">
+          <h1 class="font-serif text-5xl md:text-6xl text-custom-tan tracking-tight">Marka</h1>
+          <span class="font-mono text-xs uppercase tracking-[0.3em] text-custom-lime/80">
+            grade ledger
+          </span>
+        </div>
+        <p class="mt-2 text-custom-tan/60 font-serif italic text-lg">
+          Every quiz and exam, tallied to one number.
+        </p>
+      </div>
+      <div class="font-mono text-xs text-custom-tan/40 text-right leading-relaxed">
+        <div>RECORD&nbsp;NO. {{ new Date().getFullYear() }}–01</div>
+        <div>
+          {{ categories.length }} categor{{ categories.length === 1 ? 'y' : 'ies' }} on file
+        </div>
+      </div>
+    </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Categories input -->
-      <div class="lg:col-span-2 space-y-5">
-        <div
-          v-for="(cat, catIndex) in categories"
-          :key="catIndex"
-          class="bg-custom-tan rounded-2xl p-5 shadow-lg border-2"
-        >
-          <div class="flex items-center gap-3 mb-4">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10 items-start">
+      <!-- ledger entries -->
+      <div class="space-y-8">
+        <section v-for="(cat, catIndex) in categories" :key="catIndex" class="group">
+          <!-- category header row -->
+          <div class="flex items-center gap-4 pb-3 border-b-2 border-custom-tan/30">
+            <span class="font-mono text-custom-lime text-sm w-6 shrink-0">
+              {{ String(catIndex + 1).padStart(2, '0') }}
+            </span>
             <input
               v-model="cat.category"
-              class="flex-1 bg-transparent text-custom-purple font-bold text-lg border-b-2 border-custom-purple/30 focus:border-custom-purple outline-none pb-1"
+              class="flex-1 bg-transparent font-serif text-2xl text-custom-tan border-none outline-none placeholder:text-custom-tan/30"
               placeholder="Category name"
             />
-            <div class="flex items-center gap-2">
-              <span class="text-custom-purple/70 text-sm">Weight</span>
+            <label
+              class="flex items-center gap-2 font-mono text-xs text-custom-tan/50 uppercase tracking-wider"
+            >
+              weight
               <input
                 v-model.number="cat.weight"
                 type="number"
                 step="0.01"
                 min="0"
                 max="1"
-                class="w-20 bg-white/60 rounded-lg px-2 py-1 text-custom-purple text-sm outline-none"
+                class="w-16 bg-transparent border-b border-custom-tan/30 focus:border-custom-lime text-custom-tan text-sm font-mono outline-none text-right pb-0.5 transition-colors"
               />
-            </div>
+            </label>
             <button
               @click="removeCategory(catIndex)"
-              class="text-custom-purple/50 hover:text-red-600 font-bold px-2 cursor-pointer"
+              class="text-custom-tan/30 hover:text-custom-lime transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
               title="Remove category"
             >
-              <i class="pi pi-trash"></i>
+              <i class="pi pi-trash text-sm"></i>
             </button>
           </div>
 
-          <div class="space-y-2">
+          <!-- assessment rows -->
+          <div class="divide-y divide-custom-tan/10">
             <div
               v-for="(ass, assIndex) in cat.assessments"
               :key="assIndex"
-              class="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-2"
+              class="flex items-center gap-3 py-2.5"
             >
               <input
                 v-model="ass.name"
-                class="flex-1 bg-transparent text-custom-purple text-sm outline-none"
+                class="flex-1 bg-transparent text-custom-tan/90 text-sm outline-none placeholder:text-custom-tan/30 font-medium"
                 placeholder="Assessment name"
               />
-              <input
-                v-model.number="ass.earned_points"
-                type="number"
-                class="w-20 bg-white/70 rounded-lg px-2 py-1 text-custom-purple text-sm outline-none text-right"
-                placeholder="earned"
-              />
-              <span class="text-custom-purple/50">/</span>
-              <input
-                v-model.number="ass.total_points"
-                type="number"
-                class="w-20 bg-white/70 rounded-lg px-2 py-1 text-custom-purple text-sm outline-none text-right"
-                placeholder="total"
-              />
+              <div class="flex items-center gap-1.5 font-mono text-sm">
+                <input
+                  v-model.number="ass.earned_points"
+                  type="number"
+                  class="w-14 bg-custom-purple border border-custom-tan/20 focus:border-custom-lime rounded px-2 py-1 text-custom-tan text-right outline-none transition-colors"
+                />
+                <span class="text-custom-tan/30">/</span>
+                <input
+                  v-model.number="ass.total_points"
+                  type="number"
+                  class="w-14 bg-custom-purple border border-custom-tan/20 focus:border-custom-lime rounded px-2 py-1 text-custom-tan text-right outline-none transition-colors"
+                />
+              </div>
               <button
                 @click="removeAssessment(catIndex, assIndex)"
-                class="text-custom-purple/40 hover:text-red-600 px-1 cursor-pointer"
+                class="text-custom-tan/20 hover:text-custom-lime transition-colors cursor-pointer"
                 title="Remove assessment"
               >
-                <i class="pi pi-trash"></i>
+                <i class="pi pi-times text-xs"></i>
               </button>
             </div>
           </div>
 
           <button
             @click="addAssessment(catIndex)"
-            class="mt-3 text-custom-purple font-semibold text-sm hover:underline cursor-pointer"
+            class="mt-3 font-mono text-xs uppercase tracking-wider text-custom-mint hover:text-custom-lime transition-colors cursor-pointer"
           >
-            + Add Activity
+            + add entry
           </button>
-        </div>
+        </section>
 
-        <div class="flex items-center gap-4">
+        <!-- footer controls -->
+        <div class="pt-4 flex items-center gap-5 flex-wrap">
           <button
             @click="addCategory"
-            class="bg-custom-mint text-custom-purple font-bold px-4 py-2 rounded-xl hover:opacity-90 transition cursor-pointer w-50 hover:-translate-y-1"
+            class="border border-custom-tan/30 hover:border-custom-lime hover:text-custom-lime text-custom-tan font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-full transition-colors cursor-pointer"
           >
-            + Add Category
+            + new category
           </button>
+
           <span
-            class="text-sm"
-            :class="totalWeight() === 1 ? 'text-custom-lime' : 'text-custom-tan/70'"
+            class="font-mono text-xs uppercase tracking-wider"
+            :class="weightIsBalanced ? 'text-custom-lime' : 'text-custom-tan/40'"
           >
-            total weight: {{ totalWeight().toFixed(2) }}
-            <span v-if="totalWeight() !== 1">(should be 1.00)</span>
+            total weight {{ totalWeight.toFixed(2) }}
+            <span v-if="!weightIsBalanced">&middot; should equal 1.00</span>
           </span>
         </div>
 
         <button
           @click="calculate"
           :disabled="loading"
-          class="bg-custom-tan text-custom-purple font-extrabold px-6 py-3 rounded-xl shadow-md hover:opacity-90 transition disabled:opacity-50 w-50 cursor-pointer mt-10"
+          class="bg-custom-lime text-custom-purple font-serif font-bold text-lg px-8 py-3.5 rounded-full shadow-[0_4px_0_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_rgba(0,0,0,0.15)] active:translate-y-0 active:shadow-[0_2px_0_0_rgba(0,0,0,0.15)] transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none cursor-pointer"
         >
-          {{ loading ? 'Calculating…' : 'Calculate grade' }}
+          {{ loading ? 'Tallying…' : 'Calculate grade' }}
         </button>
 
-        <div v-if="errorMsg" class="text-red-300 font-medium">{{ errorMsg }}</div>
+        <p v-if="errorMsg" class="font-mono text-sm text-rose-300">{{ errorMsg }}</p>
       </div>
 
-      <!-- Result panel -->
-      <div class="bg-custom-mint rounded-2xl p-6 shadow-lg h-fit sticky top-10 border-2">
-        <div class="text-custom-purple font-bold text-lg mb-4">Result</div>
+      <!-- result: the stamp -->
+      <aside class="sticky top-10 bg-custom-tan rounded-3xl p-7 shadow-2xl">
+        <div class="font-mono text-[11px] uppercase tracking-[0.25em] text-custom-purple/50 mb-5">
+          Final mark
+        </div>
 
-        <div v-if="subjectGrade !== null" class="space-y-4">
-          <div class="text-5xl font-extrabold text-custom-purple">{{ subjectGrade }}%</div>
+        <div v-if="subjectGrade !== null" class="space-y-6">
+          <div class="relative flex flex-col items-center py-4">
+            <div
+              class="w-36 h-36 rounded-full border-[3px] border-custom-purple flex flex-col items-center justify-center -rotate-3"
+            >
+              <span class="font-serif text-5xl font-bold text-custom-purple leading-none">
+                {{ subjectGrade }}
+              </span>
+              <span class="font-mono text-[10px] text-custom-purple/50 mt-1">percent</span>
+            </div>
+            <div
+              class="absolute -right-1 top-0 bg-custom-purple text-custom-lime font-mono text-sm font-bold w-10 h-10 rounded-full flex items-center justify-center rotate-12"
+            >
+              {{ letterFor(subjectGrade) }}
+            </div>
+          </div>
 
-          <div class="space-y-2 mt-4">
+          <div class="space-y-2.5">
             <div
               v-for="item in breakdown"
               :key="item.category"
-              class="bg-custom-tan/60 rounded-lg p-3"
+              class="flex items-center justify-between text-sm border-b border-custom-purple/10 pb-2"
             >
-              <div class="flex justify-between text-custom-purple font-semibold text-sm">
-                <span>{{ item.category }}</span>
-                <span>{{ item.percentage }}%</span>
+              <div>
+                <div class="text-custom-purple font-semibold">{{ item.category }}</div>
+                <div class="font-mono text-[11px] text-custom-purple/40">
+                  weight {{ item.weight }} &middot; earns {{ item.contribution }}
+                </div>
               </div>
-              <div class="flex justify-between text-custom-purple/70 text-xs mt-1">
-                <span>weight {{ item.weight }}</span>
-                <span>contributes {{ item.contribution }}</span>
-              </div>
+              <div class="font-mono text-custom-purple font-bold">{{ item.percentage }}%</div>
             </div>
           </div>
         </div>
 
-        <div v-else class="text-custom-purple/60 text-sm">
-          fill in your categories and hit calculate to see your grade here.
+        <div v-else class="text-custom-purple/50 text-sm font-serif italic leading-relaxed py-6">
+          Fill in your categories, weight them to 1.00, and the tally lands here.
         </div>
-      </div>
+      </aside>
     </div>
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+</style>
