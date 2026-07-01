@@ -43,7 +43,6 @@ def calculate(subject: Subject):
         grade = get_activity_grade(category.assessments)
 
         contribution = grade * category.weight
-        # weighted_average = (weighted_average + contribution) * 100
         weighted_average += contribution
 
         breakdown.append(

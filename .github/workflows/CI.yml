@@ -59,8 +59,8 @@ jobs:
           exit-code: 1
 
   backend-lint-format:
+    if: needs.shared-changes.outputs.backend == 'true'
     needs: shared-changes
-    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -86,8 +86,9 @@ jobs:
           git diff --exit-code
 
   backend-pytest:
+    if: needs.shared-changes.outputs.backend == 'true'
+    needs: shared-changes
     runs-on: ubuntu-latest
-    needs: [shared-trivy, backend-lint-format]
 
     steps:
       - name: Checkout
@@ -109,7 +110,7 @@ jobs:
 
   frontend-eslint:
     needs: shared-changes
-    if: needs.changes.outputs.backend == 'true'
+    if: needs.shared-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -119,23 +120,13 @@ jobs:
         run: npm ci
 
       - name: Run linter program
-        run: npm run lint
-
-  frontend-prettier:
-    needs: frontend-eslint
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install modules
-        run: npm ci
-
-      - name: Run formatting program
-        run: npm run format:check
+        run: |
+          npm run lint
+          npm run format:check
 
   frontend-vitest:
-    needs: [shared-trivy, frontend-eslint, frontend-prettier]
+    needs: shared-changes
+    if: needs.shared-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
 
     steps:
