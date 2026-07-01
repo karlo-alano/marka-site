@@ -3,7 +3,7 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    container_name: backend
+    container_name: marka-backend
     ports:
       - "8000:8000"
     volumes:
@@ -16,7 +16,7 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
-    container_name: frontend
+    container_name: marka-frontend
     ports:
       - "5173:8080"
     depends_on:
