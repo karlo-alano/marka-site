@@ -2,7 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import 'primeicons/primeicons.css'
 
-// Comment to trigger CI
+// Comment to trigger CI #2
 interface Assessment {
   name: string
   earned_points: number

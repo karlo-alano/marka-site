@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+# Comment to trigger Backend CI
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://marka.karloalano.site"],
