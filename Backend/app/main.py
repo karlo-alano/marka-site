@@ -51,7 +51,7 @@ def calculate(subject: Subject):
                 "category": category.category,
                 "percentage": round(grade * 100, 2),
                 "weight": category.weight,
-                "contribution": round(contribution, 2),
+                "contribution": round(contribution * 100, 2),
             }
         )
 
