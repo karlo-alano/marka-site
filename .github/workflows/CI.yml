@@ -108,9 +108,9 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
-  frontend-eslint:
+  frontend-lint-format:
     needs: shared-changes
-    if: needs.shared-changes.outputs.backend == 'true'
+    if: needs.shared-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -126,7 +126,7 @@ jobs:
 
   frontend-vitest:
     needs: shared-changes
-    if: needs.shared-changes.outputs.backend == 'true'
+    if: needs.shared-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -135,5 +135,5 @@ jobs:
       - name: Install modules
         run: npm ci
 
-      - name: Run formatting program
+      - name: Run testing program
         run: npm run test
