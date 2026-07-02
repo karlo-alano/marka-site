@@ -47,10 +47,12 @@ repos:
         pass_filenames: false
 
   # 5. Secret Scanning
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+  - repo: local
     hooks:
       - id: gitleaks
+        name: Gitleaks
+        entry: gitleaks detect --verbose --redact
+        language: system
 
   # 6. Backend Tests (runs before push)
   - repo: local
