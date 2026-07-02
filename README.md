@@ -23,11 +23,3 @@ The repository is structured around a standard modern web architecture:
 * **Tests (`/tests`):** Automated regression endpoints and math validation suites powered by **Pytest**[cite: 2].
 
 ---
-
-## 🚀 Getting Started Locally
-
-### Backend (FastAPI)
-
-1. Navigate to the root directory and install dependencies (virtual environment recommended):
-   ```bash
-   pip install -r requirements.txt
