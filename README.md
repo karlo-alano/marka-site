@@ -1,52 +1,33 @@
-# marka-site
+# Marka – Grade Ledger & DevOps Playground
 
-## Overview
-
-**marka-site** is a modern, premium web project showcasing a clean, dynamic design with rich aesthetics. It features a vibrant color palette, smooth gradients, glass‑morphism effects, and subtle micro‑animations to provide a state‑of‑the‑art user experience.
-
-## Features
-- Responsive layout with mobile‑first approach
-- Dark mode with graceful fallback to light theme
-- Custom Google Font integration (Inter)
-- Smooth hover and focus animations
-- SEO‑friendly markup (semantic HTML, proper meta tags)
-
-## Getting Started
-
-### Prerequisites
-- A modern web browser (Chrome, Firefox, Edge, Safari)
-- Node.js (optional, only needed if you plan to run a development server for live reload)
-
-### Installation (Static)
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/marka-site.git
-   ```
-2. Open `index.html` directly in your browser.
-
-### Development Server (Optional)
-If you want hot‑reloading while editing:
-```bash
-npm install -g serve   # one‑time global install
-serve .                # serves the current directory at http://localhost:3000
-```
-
-## Project Structure
-```
-marka-site/
-├─ index.html          # Main entry point
-├─ style.css           # Core styling with custom design system
-├─ assets/             # Images, icons, etc.
-└─ README.md           # This file
-```
-
-## Customisation
-- **Colors**: Edit the `:root` CSS variables in `style.css` to adjust the palette.
-- **Fonts**: Change the Google Font import URL at the top of `style.css`.
-- **Animations**: Adjust the `transition` and `animation` properties in the CSS sections labeled `/* Animations */`.
-
-## License
-This project is open‑source under the MIT License. Feel free to fork, modify, and use it in your own projects.
+Marka is a minimalist grade calculation application that automatically tallies category-weighted scores into a final academic mark[cite: 1, 3]. While functional as a grade tracking utility, this repository is primarily designed as a sandbox for **testing, configuring, and experimenting with CI/CD pipelines, automated testing, and DevOps infrastructure.**
 
 ---
-*Generated on 2026‑06‑29.*
+
+## 🛠️ DevOps & CI/CD Focus
+
+This project serves as a practical implementation playground for modern DevOps methodologies. It is deliberately split into a decoupled frontend and backend to mirror production enterprise setups:
+
+* **Automated Quality Gates:** Integrated linting tools, type checkers, and test runners ensure code health before any deployment step triggers.
+* **Continuous Integration (CI):** Every push or pull request automatically kicks off Python unit tests via `pytest` to guarantee calculation logic remains accurate.
+* **Continuous Deployment (CD):** Validated builds are securely built and shipped straight to production domains (`karloalano.site`) via automated deployment workflows[cite: 1, 3].
+
+---
+
+## 🏗️ Project Architecture
+
+The repository is structured around a standard modern web architecture:
+
+* **Backend (`/app`):** Built with **FastAPI** (Python), exposing performance-optimized validation endpoints using Pydantic schemas[cite: 1].
+* **Frontend (`/src`):** A responsive, single-page UI built using **Vue 3 (TypeScript)** and styled with **PrimeVue / Tailwind CSS**[cite: 3].
+* **Tests (`/tests`):** Automated regression endpoints and math validation suites powered by **Pytest**[cite: 2].
+
+---
+
+## 🚀 Getting Started Locally
+
+### Backend (FastAPI)
+
+1. Navigate to the root directory and install dependencies (virtual environment recommended):
+   ```bash
+   pip install -r requirements.txt
